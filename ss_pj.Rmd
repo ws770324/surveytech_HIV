@@ -1,0 +1,171 @@
+---
+title: "Sample Survey Project"
+author: "Chen-Tze Tsai"
+date: "November 24, 2019"
+output: html_document
+---
+
+```{r}
+setwd("C:/Users/User/Desktop/sample survey/Project")
+data <- read.csv("Data_for_Sampling_Project.csv", header = T)
+```
+
+```{r}
+data.1 <- data[, c(2,6,8,9,10)]
+for (i in 3:5){
+  data.1[,i] <- as.numeric(as.character(data.1[,i]))
+}
+data.1[is.na(data.1)] <-0
+
+s <- matrix(0, ncol = 3, nrow = nrow(data.1))
+g <- matrix(0, ncol = 3, nrow = nrow(data.1))
+for (j in 3:5){
+  for (i in 1:nrow(data.1)){
+    if (data.1[i,j]>89.9 & data.1[i,j]<98){
+      s[i,j-2] <- 1
+    }
+    else {s[i,j-2] <- 0}
+    if (data.1[i,j]>=98 & data.1[i,j]<99){
+      g[i,j-2] <- 1
+    }
+    else {g[i,j-2] <- 0}
+  }
+}
+syphilis <- c()
+for (i in 1:nrow(s)){
+  if ((s[i,1]+s[i,2]+s[i,3]) == 1){
+    syphilis[i] = 1
+  }
+  else (syphilis[i] = 0)
+}
+
+gonorrhea <- c()
+for (i in 1:nrow(g)){
+  if ((g[i,1]+g[i,2]+g[i,3]) == 1){
+    gonorrhea[i] = 1
+  }
+  else (gonorrhea[i] = 0)
+}
+
+data.new <-cbind(data.1[,1:2], syphilis, gonorrhea)
+id <- unique(data.new[,1])
+
+```
+
+```{r Count 0-1 transition}
+ns <- c(); ng <- c()
+for (i in 1:length(id)){
+  temp <- data.new[which(data.new$ID == id[i]), ]
+  
+  ss <- temp$syphilis
+  ds <- ss[-1] - ss[-length(ss)]
+  ns[i] <- length(which(ds == 1))
+
+  gg <- temp$gonorrhea
+  dg <- gg[-1] - gg[-length(gg)]
+  ng[i] <- length(which(dg == 1))
+}
+```
+
+
+
+
+```{r}
+icd2 <- data$ICD9_2
+icd2 <- as.numeric(as.character(icd2))
+# NA <- 0
+icd2[is.na(icd2)] <- 0
+# index for 90~98
+index <- c()
+index.1 <- c()
+for (i in 1:length(icd2)){
+  if (icd2[i] > 89 & icd2[i] < 99){
+    index <- c(i)
+    index.1 <- c(index.1, index)
+  }
+}
+#
+icd.2 <- data[index.1,c(2,6,8)]
+v.date <- as.Date(as.character(icd.2[,2]))
+v.dif <- c(0,diff.Date(v.date))
+icd.2 <- cbind(icd.2[,c(1,2)], v.dif, icd.2[,3])
+
+length(unique(icd.2$ID))
+
+```
+
+```{r}
+data.1 <- data[, c(2,6,8,9,10)]
+for (i in 3:5){
+  data.1[,i] <- as.numeric(as.character(data.1[,i]))
+}
+data.1[is.na(data.1)] <-0
+
+#get index of two sex disease
+index <- c()
+index.2 <- c()
+for (j in 1:nrow(data.1)){
+    if (data.1[j,3] > 89 & data.1[j,3] < 99){
+       index <- c(j)
+       index.2 <- c(index.2,index)
+  }
+}
+index <- c()
+index.3 <- c()
+for (j in 1:nrow(data.1)){
+    if (data.1[j,4] > 89 & data.1[j,4] < 99){
+       index <- c(j)
+       index.3 <- c(index.3,index)
+  }
+}
+index <- c()
+index.4 <- c()
+for (j in 1:nrow(data.1)){
+    if (data.1[j,5] > 89 & data.1[j,5] < 99){
+       index <- c(j)
+       index.4 <- c(index.4,index)
+  }
+}
+
+
+# 91 for siphillis 92 for the other one
+for (i in index.2){
+  if (data.1[i,3] > 89 & data.1[i,3] < 98){
+    data.1[i,3] <- 91
+  }
+  else {data.1[i,3] <- 92}
+}
+
+for (i in index.3){
+  if (data.1[i,4] > 89 & data.1[i,4] < 98){
+    data.1[i,4] <- 91
+  }
+  else {data.1[i,4] <- 92}
+}
+
+for (i in index.4){
+  if (data.1[i,5] > 89 & data.1[i,5] < 98){
+    data.1[i,5] <- 91
+  }
+  else {data.1[i,5] <- 92}
+}
+#check persistence
+index.all <- unique(c(index.2,index.3,index.4))
+sg<- data.1[index.all,3:5]
+s <- c()
+g <- c()
+for (i in 1:nrow(sg)){
+  if (sg[i,1]==91 | sg[i,2]==91 | sg[i,3]==91){
+    s[i] = 1}
+  else{s[i] = 0}
+  
+  if (sg[i,1]==92 | sg[i,2]==92 | sg[i,3]==92){
+    g[i] = 1
+  }
+  else {g[i] = 0}
+}
+
+
+
+
+```
